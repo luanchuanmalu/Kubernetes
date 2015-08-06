@@ -1,0 +1,21 @@
+{
+  "kind": "Service",
+  "apiVersion": "v1",
+  "metadata": {
+    "name": "frontendservice"
+  },
+  "spec": {
+    "ports": [
+      {
+        "port": 4000,
+        "targetPort": 80,
+		"nodePort": 30008
+      }
+    ],
+    "selector": {
+      "name": "myfrontend"
+    },
+	"clusterIP":"10.254.61.1",
+    "type":"LoadBalancer"
+  }
+}

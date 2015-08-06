@@ -1,0 +1,24 @@
+{
+   "kind":"Service",
+   "apiVersion":"v1",
+   "metadata":{
+      "name":"guestbook",
+      "labels":{
+         "app":"guestbook"
+      }
+   },
+   "spec":{
+      "ports": [
+         {
+           "port":3000,
+           "targetPort":"http-server",
+           "nodePort":30061
+         }
+      ],
+      "selector":{
+         "app":"guestbook"
+      },
+      "clusterIP":"10.254.60.5",
+      "type":"LoadBalancer"
+   }
+}

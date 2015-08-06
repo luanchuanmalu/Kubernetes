@@ -1,0 +1,26 @@
+{
+   "kind":"Service",
+   "apiVersion":"v1",
+   "metadata":{
+      "name":"mongo-slave-1",
+      "labels":{
+         "app":"mongo",
+         "role":"slave-1"
+      }
+   },
+   "spec":{
+      "ports": [
+        {
+          "port":27017,
+          "targetPort":"mongo-slave-1",
+		  "nodePort":30002
+        }
+      ],
+      "selector":{
+         "app":"mongo",
+         "role":"slave-1"
+      },
+	  "clusterIP":"10.254.60.2",
+      "type":"LoadBalancer"
+   }
+}

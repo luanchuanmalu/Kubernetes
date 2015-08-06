@@ -1,0 +1,26 @@
+{
+  "kind": "Pod",
+  "apiVersion": "v1",
+  "metadata": {
+    "name": "mongo1"
+  },
+  "spec": {
+    "containers": [
+      {
+        "name": "mongo1",
+        "image": "mongo",
+        "args": [
+          "--replSet",
+		  "rs0"
+        ],
+        "ports": [
+          {
+		    "name":"mongo1",
+            "containerPort": 8080,
+            "protocol": "TCP"
+          }
+        ]
+      }
+    ]
+  }
+}

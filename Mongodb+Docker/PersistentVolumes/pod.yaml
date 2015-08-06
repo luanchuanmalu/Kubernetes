@@ -1,0 +1,17 @@
+kind: Pod
+apiVersion: v1
+metadata:
+  name: mypod
+spec:
+  containers:
+    - name: myfrontend
+	  image: nginx
+	  ports:
+      - containerPort: 80
+      volumeMounts:
+      - mountPath: "/var/www/html"
+        name: mypd
+  volumes:
+    - name: mypd
+	  hostPath:
+      -path: "/tmp/nginx"

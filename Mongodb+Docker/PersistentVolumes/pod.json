@@ -1,0 +1,30 @@
+{
+  "kind": "Pod",
+  "apiVersion": "v1",
+  "metadata": {
+    "name": "myfrontend"
+  },
+  "spec": {
+    "containers": [
+      {
+        "name": "myfrontend",
+        "image": "nginx",
+        "ports": [
+          {
+		    "name":"nginx",
+            "containerPort": 80
+          }
+        ],
+		"volumeMounts": [
+        { "name": "nginx",
+        "mountPath": "/var/www/html"
+		}]
+      }
+    ],
+	"nodeSelector":{"name": "minion1"},
+	"volumes":[
+     { "name": "nginx",
+       "hostPath":{"path": "/tmp/nginx"}
+     }]
+  }
+}

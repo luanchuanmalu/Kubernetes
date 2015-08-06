@@ -1,0 +1,39 @@
+{
+  "kind": "Pod",
+  "apiVersion": "v1",
+  "metadata": {
+    "name": "mongopod1",
+	"labels":{
+         "app":"mongo",
+         "role":"mongopod1"
+      }
+  },
+  "spec": {
+    "containers": [
+      {
+        "name": "mongopod1",
+        "image": "mongo",
+        "args": [
+          "--replSet",
+		  "rs0"
+        ],
+        "ports": [
+          {
+		    "name":"mongopod1",
+            "containerPort": 27017,
+            "hostPort":27017
+          }
+        ],
+		"volumeMounts": [
+        { "name": "mongdb",
+        "mountPath": "/data/db"
+		}]
+      }	
+    ],
+	"nodeSelector":{"name": "minion1"},
+	"volumes":[
+     { "name": "mongdb",
+       "hostPath":{"path": "/tmp/data/db"}
+     }]
+  }
+}

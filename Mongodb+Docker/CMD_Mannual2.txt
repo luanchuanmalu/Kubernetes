@@ -1,0 +1,50 @@
+    
+	$ docker search centos #查找centos名字的镜像
+    $ docker pull centos #下载官方纯净版本的centos镜像
+	$ docker ps #查看当前运行的container
+    $ docker ps -a #查看所有的container
+	$ docker rm #删除container
+    $ docker rmi #删除image
+    $ docker rm `docker ps -a -q`  #删除所有容器
+	
+1. 准备镜像
+docker save -o mongo.tar mongo
+	
+docker load --input mongo.tar
+2. 准备RC以及Service文件
+3. 创建RC以及服务
+kubectl create -f mongopod1.json
+kubectl create -f mongopod2.json
+kubectl create -f /tmp/docker/mongodb/mongopod3.json
+kubectl create -f mongo-master-service.json
+
+
+kubectl stop rc -l "name in(mongo-master, mongo-slave-1, mongo-slave-1)"
+kubectl delete service -l "name in (mongo-master, mongo-slave-1, mongo-slave-1)"
+
+kubectl describe svc mongo-master
+
+rs.initiate({_id:"rs0",members:[
+{_id:1,host:"192.168.93.139:27017"},
+{_id:2,host:"192.168.93.140:27017"},
+{_id:3,host:"192.168.93.143:27017"}]
+})
+
+
+use test;
+db.test.insert({"test3":"testval3"})
+repset:SECONDARY> use test;
+repset:SECONDARY> show tables;
+#mongodb默认是从主节点读写数据的，副本节点上不允许读，需要设置副本节点可以读。
+repset:SECONDARY> db.getMongo().setSlaveOk();
+ 
+#可以看到数据已经复制到了副本集。
+repset:SECONDARY> db.test.find();
+
+
+
+
+kubectl create -f /tmp/docker/mongodb/PersistentVolumes/pod.yaml
+kubectl create -f /tmp/docker/mongodb/PersistentVolumes/service.json
+
+

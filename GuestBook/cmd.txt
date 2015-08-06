@@ -1,0 +1,42 @@
+
+1. 创建pod redis-master-controller, 用rc方式
+kubectl create -f redis-master-controller.yaml
+
+kubectl logs redis-master-f1n7d
+docker logs f61c338f2161 // on minion
+
+2. 创建服务
+kubectl create -f redis-master-service.yaml
+
+3.创建pod redis-slave-controller, 用rc方式
+kubectl create -f redis-slave-controller.yaml
+kubectl create -f redis-slave-service.yaml
+
+5
+kubectl create -f frontend-controller.yaml
+kubectl create -f frontend-service.yaml
+
+
+
+kubectl stop rc -l "name in (redis-master, redis-slave, frontend)"
+kubectl delete service -l "name in (redis-master, redis-slave, frontend)"
+
+
+-----------------guestbook-go-----------------------------------------
+
+kubectl create -f redis-master-controller.json
+kubectl create -f redis-master-service.json
+kubectl create -f redis-slave-controller.json
+kubectl create -f redis-slave-service.json
+kubectl create -f guestbook-controller.json
+kubectl create -f guestbook-service.json
+
+kubectl delete -f guestbook-go
+kubectl stop rc -l "name in (redis-master, redis-slave, guestbook)"
+kubectl delete service -l "name in (redis-master, redis-slave, guestbook)"
+
+kubectl stop rc guestbook
+kubectl delete service guestbook
+
+
+kubectl describe svc guestbook

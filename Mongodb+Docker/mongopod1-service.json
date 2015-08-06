@@ -1,0 +1,25 @@
+{
+   "kind":"Service",
+   "apiVersion":"v1",
+   "metadata":{
+      "name":"mongoPod1",
+      "labels":{
+         "app":"mongo",
+         "role":"mongoPod1"
+      }
+   },
+   "spec":{
+      "ports": [
+        {
+          "port":27017,
+          "targetPort":"mongoPod1",
+        }
+      ],
+      "selector":{
+         "app":"mongo",
+         "role":"mongoPod1"
+      },
+	  "clusterIP":"10.254.60.1",
+      "type":"ClusterIP"
+   }
+}

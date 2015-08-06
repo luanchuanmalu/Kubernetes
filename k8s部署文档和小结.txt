@@ -1,0 +1,178 @@
+k8s 部署文档和小结
+
+环境假定如下，两台机器均安装了CentOS 7 x86_64版本:
+
+10.1.11.45 — Master （node）
+10.1.11.46 
+— Node
+
+部署前所有机器需要准备做的：
+
+
+1.创建yum配置 /etc/yum.repos.d/virt7-testing.repo (epel 能加也都干上)
+
+内容如下：
+[virt7-testing]
+name=virt7-testing
+baseurl=http://cbs.centos.org/repos/virt7-testing/x86_64/os/
+gpgcheck=0
+
+2.   # systemctl stop firewalld.service #停止firewall
+      # systemctl disable firewalld.service #禁止firewall开机启动
+
+
+3.yum install net-tools  bridge-utils 
+
+
+
+Master节点安装的服务如下：
+1.用官方最新稳定版覆盖 yum 下来的二进制文件。因为 yum 仓库的 kubernetes 版本太老，根本没法正常使用。
+
+
+下载最新二进制版本：https://github.com/GoogleCloudPlatform/kubernetes/releases
+
+解压后进到 kubernetes/server 目录，里面有一个名为 kubernetes-server-linux-amd64.tar.gz 的压缩包。
+再次解压。
+
+
+解压后把 kubernetes/server/bin/ 目录如下文件拷贝到 /usr/bin/ 目录下
+
+hyperkube
+kube-apiserver
+kube-controller-manager
+kubectl
+kubelet
+kube-proxy
+kubernetes
+kube-scheduler
+
+
+
+yum install etcd  安装etcd服务  
+配置conf  ETCD_LISTEN_CLIENT_URLS="http://0.0.0.0:4001”
+etcdctl mk /coreos.com/network/config '{"Network":"10.1.0.0/16”}’（后面的flannel会用到）
+
+
+
+配置  3个文件 /etc/kubernetes/config   /etc/kubernetes/apiserver   /etc/kubernetes/controller-manager
+    
+  
+配置上面不多说了 只指出里面的坑  apiserver 的 KUBE_ADMISSION_CONTROL 这个要注释掉
+
+
+3.启动服务
+systemctl enable kube-controller-manager
+systemctl enable kube-scheduler
+systemctl enable kube-apiserver
+systemctl start kube-controller-manager
+systemctl start kube-scheduler
+systemctl start kube-apiserver
+
+
+
+
+node安装 
+   只需拷贝 kube-proxy  kubelet  
+
+启动服务
+systemctl enable kube-proxy
+systemctl enable kubelet
+systemctl start kube-proxy
+systemctl start kubelet
+
+
+
+不同node下的docker之间是访问不了的问题了解决这个问题 我们使用 flannel 解决这个问题
+
+安装flannel并启动
+$ cd /data/
+$ curl -L -O https://github.com/coreos/flannel/releases/download/v0.5.1/flannel-0.5.1-linux-amd64.tar.gz
+$ tar zxvf flannel-0.5.1-linux-amd64.tar.gz 
+$ cd flannel-0.5.1
+$ cp flanneld /data/kubernetes/server/bin/ && cd  /data/kubernetes/server/bin/
+$ mkdir -p /var/log/k8s/
+$ ./flanneld  --v=0 \
+        --logtostderr=false \
+        --log_dir=/var/log/k8s  \
+        --etcd-endpoints=http://k8s-master:4001 &
+
+配置docker并启动
+$ cat /run/flannel/subnet.env
+FLANNEL_SUBNET=10.1.24.1/24
+FLANNEL_MTU=1472
+FLANNEL_IPMASQ=false
+$ vim /etc/sysconfig/docker
+OPTIONS='--selinux-enabled --bip=10.1.24.1/24 --mtu=1472 --iptables=false' //根据以上 /run/flannel/subnet.env的内容变更相应配置即可
+INSECURE_REGISTRY='--insecure-registry docker.myself'  //如果有自己的docker私有仓库并没有配置https的，需要取消注释这个选项，并修改相应的仓库地址
+#increase the number of open files for docker
+DOCKER_NOFILE=1000000  //在最后加入这一行，可以增加docker打开的文件数
+$ systemctl restart docker
+$ systemctl enable docker
+
+
+
+总结一下遇到的问题和坑
+1.如果$cat /run/flannel/subnet.env 你发现flannel子网变更了的话，你需要删除 docker0 网卡，然后把新flannel子网的信息相应变更到/etc/sysconfig/docker，才能重启docker成功。
+
+2.提前下好相关镜像 
+   
+解决gfw问题
+
+docker pull docker.io/kubernetes/pause
+
+docker tag docker.io/kubernetes/pause gcr.io/google_containers/pause:0.8.0
+   
+解决ui显示问题
+    kubectl create -f cluster/addons/kube-ui/kube-ui-rc.yaml --namespace=kube-system
+   kubectl create -f cluster/addons/kube-ui/kube-ui-svc.yaml --namespace=kube-system
+这里有个gfw的问题 需要提醒 docker load gcr.io_google_containers_kube-ui_v1.1.tar   群里共享里有 或者你自己翻墙 pull
+
+
+   
+  
+
+
+启动实例：
+    docker pull  nginx
+
+    kubectl run my-nginx --image=nginx --replicas=2 --port=80
+    kubectl expose rc my-nginx --port=80 --type=LoadBalancer
+
+上面的命令会分别在2个node中建立 nginx 
+
+docker
+
+常用命令 
+ kubectl get po   
+ kubectl get rc 
+ kubectl get svc
+ kubectl describe svc xxx
+ 
+
+参考网上文档  
+
+http://www.jianshu.com/p/8d3204b96cf9
+http://blog.liuts.com/post/247/
+http://www.fangyunlin.com/?p=54
+
+注意 网上文档的默认yaml 或者 json 都是针对老版本的k8s的 
+新格式请参考https://cloud.google.com/container-engine/docs/replicationcontrollers/operations
+
+   
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

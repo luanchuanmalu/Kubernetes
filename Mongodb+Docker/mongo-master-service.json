@@ -1,0 +1,26 @@
+{
+   "kind":"Service",
+   "apiVersion":"v1",
+   "metadata":{
+      "name":"mongo-master",
+      "labels":{
+         "app":"mongo",
+         "role":"master"
+      }
+   },
+   "spec":{
+      "ports": [
+        {
+          "port":27017,
+          "targetPort":"mongo-master",
+		  "nodePort":30001
+        }
+      ],
+      "selector":{
+         "app":"mongo",
+         "role":"master"
+      },
+	  "clusterIP":"10.254.60.1",
+      "type":"LoadBalancer"
+   }
+}
