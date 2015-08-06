@@ -1,0 +1,199 @@
+	
+-------------------M1&M2 Install:------------------------------------------
+1. Openvswitch install
+	[yuwh@node0 ~]$ uname -a
+	Linux node0 3.10.0-123.9.3.el7.x86_64 #1 SMP Thu Nov 6 15:06:03 UTC 2014 x86_64 x86_64 x86_64 GNU/Linux
+	[yuwh@node0 ~]$ cat /etc/redhat-release
+	CentOS Linux release 7.0.1406 (Core)
+	
+	[root@node0 ~]# yum -y install wget openssl-devel kernel-devel
+	[root@node0 ~]# yum groupinstall "Development Tools"
+	[root@node0 ~]# adduser ovswitch
+	[root@node0 ~]# su - ovswitch
+	[ovswitch@node0 ~]$ wget http://openvswitch.org/releases/openvswitch-2.3.0.tar.gz 
+	[ovswitch@node0 ~]$ tar xfz openvswitch-2.3.0.tar.gz
+	[ovswitch@node0 ~]$ mkdir -p ~/rpmbuild/SOURCES
+	[ovswitch@node0 ~]$ cp openvswitch-2.3.0.tar.gz ~/rpmbuild/SOURCES
+	去除Nicira提供的openvswitch-kmod依赖包，创建新的spec文件
+	[ovswitch@node0 ~]$ sed 's/openvswitch-kmod, //g' openvswitch-2.3.0/rhel/openvswitch.spec > openvswitch-2.3.0/rhel/openvswitch_no_kmod.spec
+	[ovswitch@node0 ~]$ rpmbuild -bb --without check ~/openvswitch-2.3.0/rhel/openvswitch_no_kmod.spec
+	[ovswitch@node0 ~]$ exit
+	[root@node0 ~]# yum localinstall /home/ovswitch/rpmbuild/RPMS/x86_64/openvswitch-2.3.0-1.x86_64.rpm
+	安装完成，验证一下：
+	[root@node0 ~]# rpm -qf `which ovs-vsctl`
+	openvswitch-2.3.0-1.x86_64
+2. Open vSwitch start
+	close selinux
+	vi /etc/selinux/config
+		#SELINUX=enforcing
+		SELINUX=disabled
+	重启机器
+	systemctl start openvswitch.service
+	systemctl -l status openvswitch.service
+	
+	systemctl stop NetworkManager.service
+	systemctl disable NetworkManager.service
+	
+	ovs-vsctl add-br obr0
+	GRE网桥
+	[root@minion1 ~]# ovs-vsctl add-port obr0 gre0 -- set Interface gre0 type=gre options:remote_ip=192.168.93.140
+	[root@minion2 ~]# ovs-vsctl add-port obr0 gre0 -- set Interface gre0 type=gre options:remote_ip=192.168.93.139
+	[root@minion2 ~]# ovs-vsctl add-port obr0 gre1 -- set Interface gre1 type=gre options:remote_ip=192.168.93.143
+	[root@minion5 ~]# ovs-vsctl add-port obr0 gre1 -- set Interface gre1 type=gre options:remote_ip=192.168.93.139
+	[root@minion5 ~]# ovs-vsctl add-port obr0 gre2 -- set Interface gre2 type=gre options:remote_ip=192.168.93.140
+	[root@minion1 ~]# ovs-vsctl add-port obr0 gre2 -- set Interface gre2 type=gre options:remote_ip=192.168.93.143
+	 ovs-vsctl show
+	ovs-vsctl set Interface gre2 type=gre options:remote_ip=192.168.93.143
+	ovs-vsctl set Interface gre0 type=gre options:remote_ip=192.168.93.140
+	要是Linux可以工作在网桥模式，必须安装网桥工具bridge-utils，运行命令：
+	yum install bridge-utils
+	
+	1&2
+	[root@minion1 ~]# brctl addbr kbr0               //创建linux bridge
+	[root@minion1 ~]# brctl addif kbr0 obr0          //添加obr0为kbr0的接口
+	[root@minion1 ~]# ip link set dev docker0 down   //设置docker0为down状态
+	[root@minion1 ~]# ip link del dev docker0        //删除docker0
+	
+	cd /etc/sysconfig/network-scripts/
+	touch ifcfg-kbr0
+	vi ifcfg-kbr0 
+	//minion1
+		DEVICE=kbr0
+		ONBOOT=yes
+		BOOTPROTO=static
+		IPADDR=172.17.1.1
+		NETMASK=255.255.255.0
+		GATEWAY=172.17.1.0
+		USERCTL=no
+		TYPE=Bridge
+		IPV6INIT=no
+	//minion2
+		DEVICE=kbr0
+		ONBOOT=yes
+		BOOTPROTO=static
+		IPADDR=172.17.2.1
+		NETMASK=255.255.255.0
+		GATEWAY=172.17.2.0
+		USERCTL=no
+		TYPE=Bridge
+		IPV6INIT=no
+		
+		
+		
+  systemctl restart network  //如果没有成功为kbr0分配IP，重启机器
+  //打通路由
+  cd /etc/sysconfig/network-scripts
+  touch route-eno16777736  //本机的eth0就是eno16777736
+  vi route-eno16777736
+  //minion1
+  172.17.2.0/24 via 192.168.93.140 dev eno16777736
+  //minion2
+  172.17.1.0/24 via 192.168.93.139 dev eno16777736
+  
+  systemctl restart network 
+  ping 172.17.2.1 / ping 172.17.1.1 #检查互相能通
+  
+3. 安装K8S 参照Master安装步骤
+4. 配置
+echo "192.168.93.131 centos-master 
+192.168.93.139 centos-minion1
+192.168.93.140 centos-minion2
+192.168.93.141 centos-minion3" >> /etc/hosts
+systemctl disable iptables-services firewalld
+systemctl stop iptables-services firewalld
+4.1 config配置
+
+4.2
+for SERVICES in kube-proxy kubelet docker; do 
+    systemctl restart $SERVICES
+    systemctl enable $SERVICES
+    systemctl status $SERVICES 
+done
+for SERVICES in kube-proxy kubelet docker; do 
+    systemctl restart $SERVICES
+done
+
+for SERVICES in kube-proxy kubelet docker; do 
+    systemctl stop $SERVICES
+    systemctl disable $SERVICES
+    systemctl status $SERVICES 
+done
+
+5 测试
+cd /tmp/docker
+docker load --input ngnix.tar
+docker load --input dockio_pause.tar
+docker load --input gcr_pause.tar
+docker images
+
+kubectl run my-nginx --image=nginx --replicas=2 --port=8081
+
+-------------------Master Install:------------------------------------------
+1. 安装 https://github.com/GoogleCloudPlatform/kubernetes/tree/master/docs/getting-started-guides/centos
+make the repo
+[virt7-testing]
+name=virt7-testing
+baseurl=http://cbs.centos.org/repos/virt7-testing/x86_64/os/
+gpgcheck=0
+
+yum -y install --enablerepo=virt7-testing kubernetes
+yum erase etcd
+yum -y install --enablerepo=virt7-testing kubernetes
+
+yum -y install --enablerepo=virt7-docker-common-candidate kubernetes
+2.配置
+
+echo "192.168.93.131 centos-master 
+192.168.93.139 centos-minion1
+192.168.93.140 centos-minion2
+192.168.93.141 centos-minion3" >> /etc/hosts
+systemctl disable iptables-services firewalld
+systemctl stop iptables-services firewalld
+#如果上面停不掉，用这个
+systemctl disable firewalld.service
+systemctl stop firewalld.service
+2.1 config
+2.2 apiserver
+for SERVICES in kube-apiserver kube-controller-manager kube-scheduler; do 
+    systemctl restart $SERVICES
+    systemctl enable $SERVICES
+    systemctl status $SERVICES 
+done
+
+systemctl restart kube-apiserver
+systemctl restart kube-controller-manager
+systemctl restart kube-scheduler
+
+
+3 测试
+cd /tmp/docker
+docker load --input ngnix.tar
+docker load --input dockio_pause.tar
+docker load --input gcr_pause.tar
+docker images
+
+kubectl run my-nginx --image=nginx --replicas=2 --port=8081
+kubectl expose rc my-nginx --port=8081 --type=LoadBalancer
+
+-------------------Etcd Install:------------------------------------------
+ 安装   
+	yum install etcd	
+	
+	systemctl disable iptables-services firewalld
+	systemctl stop iptables-services firewalld
+	
+	1、关闭firewall：
+systemctl stop firewalld.service #停止firewall
+systemctl disable firewalld.service #禁止firewall开机启动
+firewall-cmd --state #查看默认防火墙状态（关闭后显示notrunning，开启
+
+for SERVICES in etcd; do 
+    systemctl restart $SERVICES
+    systemctl enable $SERVICES
+    systemctl status $SERVICES 
+done
+
+  
+  
+  
+  

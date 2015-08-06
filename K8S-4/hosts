@@ -1,0 +1,8 @@
+127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4
+::1         localhost localhost.localdomain localhost6 localhost6.localdomain6
+192.168.93.141 centos-master
+192.168.93.131 k8setcd
+192.168.93.139 centos-minion1
+192.168.93.140 centos-minion2
+192.168.93.143 centos-minion5
+
