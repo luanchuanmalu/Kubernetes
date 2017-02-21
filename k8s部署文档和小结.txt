@@ -1,41 +1,41 @@
-k8s ²¿ÊğÎÄµµºÍĞ¡½á
+k8s éƒ¨ç½²æ–‡æ¡£å’Œå°ç»“
 
-»·¾³¼Ù¶¨ÈçÏÂ£¬Á½Ì¨»úÆ÷¾ù°²×°ÁËCentOS 7 x86_64°æ±¾:
+ç¯å¢ƒå‡å®šå¦‚ä¸‹ï¼Œä¸¤å°æœºå™¨å‡å®‰è£…äº†CentOS 7 x86_64ç‰ˆæœ¬:
 
-10.1.11.45 ¡ª Master £¨node£©
+10.1.11.45 â€” Master ï¼ˆnodeï¼‰
 10.1.11.46 
-¡ª Node
+â€” Node
 
-²¿ÊğÇ°ËùÓĞ»úÆ÷ĞèÒª×¼±¸×öµÄ£º
+éƒ¨ç½²å‰æ‰€æœ‰æœºå™¨éœ€è¦å‡†å¤‡åšçš„ï¼š
 
 
-1.´´½¨yumÅäÖÃ /etc/yum.repos.d/virt7-testing.repo (epel ÄÜ¼ÓÒ²¶¼¸ÉÉÏ)
+1.åˆ›å»ºyumé…ç½® /etc/yum.repos.d/virt7-testing.repo (epel èƒ½åŠ ä¹Ÿéƒ½å¹²ä¸Š)
 
-ÄÚÈİÈçÏÂ£º
+å†…å®¹å¦‚ä¸‹ï¼š
 [virt7-testing]
 name=virt7-testing
 baseurl=http://cbs.centos.org/repos/virt7-testing/x86_64/os/
 gpgcheck=0
 
-2.   # systemctl stop firewalld.service #Í£Ö¹firewall
-      # systemctl disable firewalld.service #½ûÖ¹firewall¿ª»úÆô¶¯
+2.   # systemctl stop firewalld.service #åœæ­¢firewall
+      # systemctl disable firewalld.service #ç¦æ­¢firewallå¼€æœºå¯åŠ¨
 
 
 3.yum install net-tools  bridge-utils 
 
 
 
-Master½Úµã°²×°µÄ·şÎñÈçÏÂ£º
-1.ÓÃ¹Ù·½×îĞÂÎÈ¶¨°æ¸²¸Ç yum ÏÂÀ´µÄ¶ş½øÖÆÎÄ¼ş¡£ÒòÎª yum ²Ö¿âµÄ kubernetes °æ±¾Ì«ÀÏ£¬¸ù±¾Ã»·¨Õı³£Ê¹ÓÃ¡£
+MasterèŠ‚ç‚¹å®‰è£…çš„æœåŠ¡å¦‚ä¸‹ï¼š
+1.ç”¨å®˜æ–¹æœ€æ–°ç¨³å®šç‰ˆè¦†ç›– yum ä¸‹æ¥çš„äºŒè¿›åˆ¶æ–‡ä»¶ã€‚å› ä¸º yum ä»“åº“çš„ kubernetes ç‰ˆæœ¬å¤ªè€ï¼Œæ ¹æœ¬æ²¡æ³•æ­£å¸¸ä½¿ç”¨ã€‚
 
 
-ÏÂÔØ×îĞÂ¶ş½øÖÆ°æ±¾£ºhttps://github.com/GoogleCloudPlatform/kubernetes/releases
+ä¸‹è½½æœ€æ–°äºŒè¿›åˆ¶ç‰ˆæœ¬ï¼šhttps://github.com/GoogleCloudPlatform/kubernetes/releases
 
-½âÑ¹ºó½øµ½ kubernetes/server Ä¿Â¼£¬ÀïÃæÓĞÒ»¸öÃûÎª kubernetes-server-linux-amd64.tar.gz µÄÑ¹Ëõ°ü¡£
-ÔÙ´Î½âÑ¹¡£
+è§£å‹åè¿›åˆ° kubernetes/server ç›®å½•ï¼Œé‡Œé¢æœ‰ä¸€ä¸ªåä¸º kubernetes-server-linux-amd64.tar.gz çš„å‹ç¼©åŒ…ã€‚
+å†æ¬¡è§£å‹ã€‚
 
 
-½âÑ¹ºó°Ñ kubernetes/server/bin/ Ä¿Â¼ÈçÏÂÎÄ¼ş¿½±´µ½ /usr/bin/ Ä¿Â¼ÏÂ
+è§£å‹åæŠŠ kubernetes/server/bin/ ç›®å½•å¦‚ä¸‹æ–‡ä»¶æ‹·è´åˆ° /usr/bin/ ç›®å½•ä¸‹
 
 hyperkube
 kube-apiserver
@@ -48,19 +48,19 @@ kube-scheduler
 
 
 
-yum install etcd  °²×°etcd·şÎñ  
-ÅäÖÃconf  ETCD_LISTEN_CLIENT_URLS="http://0.0.0.0:4001¡±
-etcdctl mk /coreos.com/network/config '{"Network":"10.1.0.0/16¡±}¡¯£¨ºóÃæµÄflannel»áÓÃµ½£©
+yum install etcd  å®‰è£…etcdæœåŠ¡  
+é…ç½®conf  ETCD_LISTEN_CLIENT_URLS="http://0.0.0.0:4001â€
+etcdctl mk /coreos.com/network/config '{"Network":"10.1.0.0/16â€}â€™ï¼ˆåé¢çš„flannelä¼šç”¨åˆ°ï¼‰
 
 
 
-ÅäÖÃ  3¸öÎÄ¼ş /etc/kubernetes/config   /etc/kubernetes/apiserver   /etc/kubernetes/controller-manager
+é…ç½®  3ä¸ªæ–‡ä»¶ /etc/kubernetes/config   /etc/kubernetes/apiserver   /etc/kubernetes/controller-manager
     
   
-ÅäÖÃÉÏÃæ²»¶àËµÁË Ö»Ö¸³öÀïÃæµÄ¿Ó  apiserver µÄ KUBE_ADMISSION_CONTROL Õâ¸öÒª×¢ÊÍµô
+é…ç½®ä¸Šé¢ä¸å¤šè¯´äº† åªæŒ‡å‡ºé‡Œé¢çš„å‘  apiserver çš„ KUBE_ADMISSION_CONTROL è¿™ä¸ªè¦æ³¨é‡Šæ‰
 
 
-3.Æô¶¯·şÎñ
+3.å¯åŠ¨æœåŠ¡
 systemctl enable kube-controller-manager
 systemctl enable kube-scheduler
 systemctl enable kube-apiserver
@@ -71,10 +71,10 @@ systemctl start kube-apiserver
 
 
 
-node°²×° 
-   Ö»Ğè¿½±´ kube-proxy  kubelet  
+nodeå®‰è£… 
+   åªéœ€æ‹·è´ kube-proxy  kubelet  
 
-Æô¶¯·şÎñ
+å¯åŠ¨æœåŠ¡
 systemctl enable kube-proxy
 systemctl enable kubelet
 systemctl start kube-proxy
@@ -82,9 +82,9 @@ systemctl start kubelet
 
 
 
-²»Í¬nodeÏÂµÄdockerÖ®¼äÊÇ·ÃÎÊ²»ÁËµÄÎÊÌâÁË½â¾öÕâ¸öÎÊÌâ ÎÒÃÇÊ¹ÓÃ flannel ½â¾öÕâ¸öÎÊÌâ
+ä¸åŒnodeä¸‹çš„dockerä¹‹é—´æ˜¯è®¿é—®ä¸äº†çš„é—®é¢˜äº†è§£å†³è¿™ä¸ªé—®é¢˜ æˆ‘ä»¬ä½¿ç”¨ flannel è§£å†³è¿™ä¸ªé—®é¢˜
 
-°²×°flannel²¢Æô¶¯
+å®‰è£…flannelå¹¶å¯åŠ¨
 $ cd /data/
 $ curl -L -O https://github.com/coreos/flannel/releases/download/v0.5.1/flannel-0.5.1-linux-amd64.tar.gz
 $ tar zxvf flannel-0.5.1-linux-amd64.tar.gz 
@@ -96,73 +96,73 @@ $ ./flanneld  --v=0 \
         --log_dir=/var/log/k8s  \
         --etcd-endpoints=http://k8s-master:4001 &
 
-ÅäÖÃdocker²¢Æô¶¯
+é…ç½®dockerå¹¶å¯åŠ¨
 $ cat /run/flannel/subnet.env
 FLANNEL_SUBNET=10.1.24.1/24
 FLANNEL_MTU=1472
 FLANNEL_IPMASQ=false
 $ vim /etc/sysconfig/docker
-OPTIONS='--selinux-enabled --bip=10.1.24.1/24 --mtu=1472 --iptables=false' //¸ù¾İÒÔÉÏ /run/flannel/subnet.envµÄÄÚÈİ±ä¸üÏàÓ¦ÅäÖÃ¼´¿É
-INSECURE_REGISTRY='--insecure-registry docker.myself'  //Èç¹ûÓĞ×Ô¼ºµÄdockerË½ÓĞ²Ö¿â²¢Ã»ÓĞÅäÖÃhttpsµÄ£¬ĞèÒªÈ¡Ïû×¢ÊÍÕâ¸öÑ¡Ïî£¬²¢ĞŞ¸ÄÏàÓ¦µÄ²Ö¿âµØÖ·
+OPTIONS='--selinux-enabled --bip=10.1.24.1/24 --mtu=1472 --iptables=false' //æ ¹æ®ä»¥ä¸Š /run/flannel/subnet.envçš„å†…å®¹å˜æ›´ç›¸åº”é…ç½®å³å¯
+INSECURE_REGISTRY='--insecure-registry docker.myself'  //å¦‚æœæœ‰è‡ªå·±çš„dockerç§æœ‰ä»“åº“å¹¶æ²¡æœ‰é…ç½®httpsçš„ï¼Œéœ€è¦å–æ¶ˆæ³¨é‡Šè¿™ä¸ªé€‰é¡¹ï¼Œå¹¶ä¿®æ”¹ç›¸åº”çš„ä»“åº“åœ°å€
 #increase the number of open files for docker
-DOCKER_NOFILE=1000000  //ÔÚ×îºó¼ÓÈëÕâÒ»ĞĞ£¬¿ÉÒÔÔö¼Ódocker´ò¿ªµÄÎÄ¼şÊı
+DOCKER_NOFILE=1000000  //åœ¨æœ€ååŠ å…¥è¿™ä¸€è¡Œï¼Œå¯ä»¥å¢åŠ dockeræ‰“å¼€çš„æ–‡ä»¶æ•°
 $ systemctl restart docker
 $ systemctl enable docker
 
 
 
-×Ü½áÒ»ÏÂÓöµ½µÄÎÊÌâºÍ¿Ó
-1.Èç¹û$cat /run/flannel/subnet.env Äã·¢ÏÖflannel×ÓÍø±ä¸üÁËµÄ»°£¬ÄãĞèÒªÉ¾³ı docker0 Íø¿¨£¬È»ºó°ÑĞÂflannel×ÓÍøµÄĞÅÏ¢ÏàÓ¦±ä¸üµ½/etc/sysconfig/docker£¬²ÅÄÜÖØÆôdocker³É¹¦¡£
+æ€»ç»“ä¸€ä¸‹é‡åˆ°çš„é—®é¢˜å’Œå‘
+1.å¦‚æœ$cat /run/flannel/subnet.env ä½ å‘ç°flannelå­ç½‘å˜æ›´äº†çš„è¯ï¼Œä½ éœ€è¦åˆ é™¤ docker0 ç½‘å¡ï¼Œç„¶åæŠŠæ–°flannelå­ç½‘çš„ä¿¡æ¯ç›¸åº”å˜æ›´åˆ°/etc/sysconfig/dockerï¼Œæ‰èƒ½é‡å¯dockeræˆåŠŸã€‚
 
-2.ÌáÇ°ÏÂºÃÏà¹Ø¾µÏñ 
+2.æå‰ä¸‹å¥½ç›¸å…³é•œåƒ 
    
-½â¾ögfwÎÊÌâ
+è§£å†³gfwé—®é¢˜
 
 docker pull docker.io/kubernetes/pause
 
 docker tag docker.io/kubernetes/pause gcr.io/google_containers/pause:0.8.0
    
-½â¾öuiÏÔÊ¾ÎÊÌâ
+è§£å†³uiæ˜¾ç¤ºé—®é¢˜
     kubectl create -f cluster/addons/kube-ui/kube-ui-rc.yaml --namespace=kube-system
    kubectl create -f cluster/addons/kube-ui/kube-ui-svc.yaml --namespace=kube-system
-ÕâÀïÓĞ¸ögfwµÄÎÊÌâ ĞèÒªÌáĞÑ docker load gcr.io_google_containers_kube-ui_v1.1.tar   ÈºÀï¹²ÏíÀïÓĞ »òÕßÄã×Ô¼º·­Ç½ pull
+è¿™é‡Œæœ‰ä¸ªgfwçš„é—®é¢˜ éœ€è¦æé†’ docker load gcr.io_google_containers_kube-ui_v1.1.tar   ç¾¤é‡Œå…±äº«é‡Œæœ‰ æˆ–è€…ä½ è‡ªå·±ç¿»å¢™ pull
 
 
    
   
 
 
-Æô¶¯ÊµÀı£º
+å¯åŠ¨å®ä¾‹ï¼š
     docker pull  nginx
 
     kubectl run my-nginx --image=nginx --replicas=2 --port=80
     kubectl expose rc my-nginx --port=80 --type=LoadBalancer
 
-ÉÏÃæµÄÃüÁî»á·Ö±ğÔÚ2¸önodeÖĞ½¨Á¢ nginx 
+ä¸Šé¢çš„å‘½ä»¤ä¼šåˆ†åˆ«åœ¨2ä¸ªnodeä¸­å»ºç«‹ nginx 
 
 docker
 
-³£ÓÃÃüÁî 
+å¸¸ç”¨å‘½ä»¤ 
  kubectl get po   
  kubectl get rc 
  kubectl get svc
  kubectl describe svc xxx
  
 
-²Î¿¼ÍøÉÏÎÄµµ  
+å‚è€ƒç½‘ä¸Šæ–‡æ¡£  
 
 http://www.jianshu.com/p/8d3204b96cf9
 http://blog.liuts.com/post/247/
 http://www.fangyunlin.com/?p=54
 
-×¢Òâ ÍøÉÏÎÄµµµÄÄ¬ÈÏyaml »òÕß json ¶¼ÊÇÕë¶ÔÀÏ°æ±¾µÄk8sµÄ 
-ĞÂ¸ñÊ½Çë²Î¿¼https://cloud.google.com/container-engine/docs/replicationcontrollers/operations
+æ³¨æ„ ç½‘ä¸Šæ–‡æ¡£çš„é»˜è®¤yaml æˆ–è€… json éƒ½æ˜¯é’ˆå¯¹è€ç‰ˆæœ¬çš„k8sçš„ 
+æ–°æ ¼å¼è¯·å‚è€ƒhttps://cloud.google.com/container-engine/docs/replicationcontrollers/operations
 
    
   
 
 
-
+hahah
 
 
 
